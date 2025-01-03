@@ -27,20 +27,21 @@ backbone:
 
 # Head (with upsampling adjustments)
 head:
-  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]  # Upsample P4
-  - [[-1, 6], 1, Concat, [1]]  # Concatenate P3 and P4 (after upsampling)
-  - [-1, 3, C2f, [512]]  # 12
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 6], 1, Concat, [1]]  # Make sure P4 from backbone matches with P4 from head
+  - [-1, 3, C2fDeformable, [512]] # 12 (adjust to match size)
 
-  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]  # Upsample P3
-  - [[-1, 4], 1, Concat, [1]]  # Concatenate P3 and P4 (after upsampling)
-  - [-1, 3, C2f, [256]]  # 15 (P3/8-small)
+  - [-1, 1, nn.Upsample, [None, 2, "nearest"]]
+  - [[-1, 4], 1, Concat, [1]]  # Ensure P3 from backbone matches P3 from head
+  - [-1, 3, C2fDeformable, [256]] # 15 (P3/8-small)
 
   - [-1, 1, Conv, [256, 3, 2]]
-  - [[-1, 12], 1, Concat, [1]]  # Concatenate P4 and P5
-  - [-1, 3, C2f, [512]]  # 18 (P4/16-medium)
+  - [[-1, 12], 1, Concat, [1]]  # Ensure P4 from head matches the previous layer
+  - [-1, 3, C2fDeformable, [512]] # 18 (P4/16-medium)
 
   - [-1, 1, Conv, [512, 3, 2]]
-  - [[-1, 9], 1, Concat, [1]]  # Concatenate P5 and P4
-  - [-1, 3, C2f, [1024]]  # 21 (P5/32-large)
+  - [[-1, 9], 1, Concat, [1]]  # Ensure P5 from head matches the previous layer
+  - [-1, 3, C2fDeformable, [1024]] # 21 (P5/32-large)
 
-  - [[15, 18, 21], 1, Segment, [nc, 32, 256]]  # Segment(P3, P4, P5)
+  - [[15, 18, 21], 1, Segment, [nc, 32, 256]] # Segment
+
